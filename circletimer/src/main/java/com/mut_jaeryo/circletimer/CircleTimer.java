@@ -468,12 +468,12 @@ public class CircleTimer extends View {
 
         int height = getDefaultSize(getSuggestedMinimumHeight(),
                 heightMeasureSpec);
-        int width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-        int min = Math.min(width, height);
-        setMeasuredDimension(min, min);
+      //  int width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
+
+        setMeasuredDimension(height, height);
 
 
-        mTranslationOffset = min * 0.5f; // 캔버스 중심으로
+        mTranslationOffset = height * 0.5f; // 캔버스 중심으로
 
         //확인을 위해
         mColorWheelStrokeWidth=(int)(mTranslationOffset/3);
