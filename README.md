@@ -25,6 +25,9 @@ dependencies {
 ```
 
 ## Example
+
+<img src="./images/main_gif.gif" height="400" width="220">
+
 ### From the layout 
    but CircleTimer is have Error from`RelativeLayout`, so you better use Layout without RelativeLayout
    
@@ -36,6 +39,7 @@ dependencies {
         android:layout_width="wrap_content"
         android:layout_height="200dp"
         app:IsOutline="true"
+	app:show_text="true"
         app:init_position="3124"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -45,9 +49,16 @@ dependencies {
 
 ### From the code
 ```java
-
+	timer = findViewById(R.id.main_timer);
+	timer.setMax(3600)  // 60 minute
+        timer.setInitPosition(2000); //default max 3600
 ```
 
 ### Start Timer
 
+```java
+     timer.Start()
+     // Stop and Reset() have to call after Start()
+     timer.Stop()
+     timer.Reset()
 ```
