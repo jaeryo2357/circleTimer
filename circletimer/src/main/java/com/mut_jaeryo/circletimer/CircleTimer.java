@@ -468,7 +468,7 @@ public class CircleTimer extends View {
 
         int height = getDefaultSize(getSuggestedMinimumHeight(),
                 heightMeasureSpec);
-      //  int width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
+        int width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
 
         setMeasuredDimension(height, height);
 
@@ -559,9 +559,6 @@ public class CircleTimer extends View {
      * @return the value between 0 and max
      */
     public int getValue() {
-
-
-
         return CurrentValue;
     }
 
