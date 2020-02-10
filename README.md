@@ -62,3 +62,14 @@ dependencies {
      timer.Stop()
      timer.Reset()
 ```
+
+### End Timer Linstener
+
+```java
+     rectTimer.setBaseTimerEndedListener(new RectTimer.baseTimerEndedListener() { //timer 종료
+            @Override
+            public void OnEnded() {
+
+            }
+        });
+```
