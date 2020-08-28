@@ -50,7 +50,7 @@ dependencies {
 ### From the code
 ```java
 	timer = findViewById(R.id.main_timer);
-	timer.setMax(3600)  // 60 minute
+	timer.setMaximumTime(3600)  // 60 minute
         timer.setInitPosition(2000); //default max 3600
 ```
 
