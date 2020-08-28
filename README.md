@@ -20,7 +20,7 @@ allprojects {
 In your build.gradle :
 ```gradle
 dependencies {
-    implementation 'com.github.jaeryo2357.CircleTimer-Android:circletimer:1.0.2'
+    implementation 'com.github.jaeryo2357.CircleTimer-Android:circletimer:1.0.4'
 }
 ```
 
@@ -38,7 +38,7 @@ dependencies {
      <com.mut_jaeryo.circletimer.CircleTimer
         android:layout_width="wrap_content"
         android:layout_height="200dp"
-        app:IsOutline="true"
+        app:isOutline="true"
 	app:show_text="true"
         app:init_position="3124"
         app:layout_constraintEnd_toEndOf="parent"
@@ -50,17 +50,17 @@ dependencies {
 ### From the code
 ```java
 	timer = findViewById(R.id.main_timer);
-	timer.setMax(3600)  // 60 minute
+	timer.setMaximumTime(3600)  // 60 minute
         timer.setInitPosition(2000); //default max 3600
 ```
 
 ### Start Timer
 
 ```java
-     timer.Start()
+     timer.start()
      // Stop and Reset() have to call after Start()
-     timer.Stop()
-     timer.Reset()
+     timer.stop()
+     timer.reset()
 ```
 
 ### End Timer Linstener
