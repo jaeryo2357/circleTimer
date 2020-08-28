@@ -168,22 +168,26 @@ public class CircleTimer extends View {
 
     public void reset() {
         isRunning = false;
-
         reset = true;
         currentTime = timerTime;
         setValue(currentTime);
         setTextFromAngle(currentTime);
-        timer.cancel();
-        timer.purge();
-        timer = null;
+
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+            timer = null;
+        }
     }
 
     public void stop() {
 
         isRunning = false;
-        timer.cancel();
-        timer.purge();
-        timer = null;
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+            timer = null;
+        }
     }
 
 
@@ -251,6 +255,9 @@ public class CircleTimer extends View {
     private void setTextFromAngle(int angleValue) { //화면 중앙의 Text 값을 표시하는 곳
 
         currentTime = angleValue;
+        if (currentTime < 0) {
+            currentTime = 0;
+        }
         int temp = angleValue / 60;
         String minute = temp >= 10 ? String.valueOf(temp) : "0" + temp;
 
@@ -729,7 +736,13 @@ public class CircleTimer extends View {
                 setTextFromAngle(value);
 
             } else {
-                if (baseTimerEndedListener != null) baseTimerEndedListener.OnEnded();
+                CircleTimer.this.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (baseTimerEndedListener != null) baseTimerEndedListener.OnEnded();
+                    }
+                });
+
                 this.cancel();
             }
         }
