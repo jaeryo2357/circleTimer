@@ -20,7 +20,7 @@ allprojects {
 In your build.gradle :
 ```gradle
 dependencies {
-    implementation 'com.github.jaeryo2357:circleTimer:1.1.2'
+    implementation 'com.github.jaeryo2357:circleTimer:1.1.3'
 }
 ```
 
