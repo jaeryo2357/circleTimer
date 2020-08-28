@@ -1,8 +1,5 @@
 package com.mut_jaeryo.circletimer;
 
-
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -12,18 +9,14 @@ import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.SweepGradient;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 
-
 import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.core.content.res.ResourcesCompat;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -32,20 +25,16 @@ https://github.com/JesusM/HoloCircleSeekBar 이 링크에서 제공해준 Circle
 */
 public class CircleTimer extends View {
 
-    private static final String STATE_PARENT = "parent";
-    private static final String STATE_ANGLE = "angle";
-    // private static final int TEXT_SIZE_DEFAULT_VALUE = 40;   //중앙에 표시될 글자의 기본크기?
-    private static final int END_WHEEL_DEFAULT_VALUE = 360;  // 아직 모르겠다.
-
-    AlarmManager manager;
-    boolean isRunning=false;
-
-    baseTimerEndedListener baseTimerEndedListener;
-    //public static final int COLOR_WHEEL_STROKE_WIDTH_DEF_VALUE = 100; //원 반지름 크기
     public static final float POINTER_RADIUS_DEF_VALUE = 8;
-    public static final int MAX_POINT_DEF_VALUE = 60*60; //1시간
+    public static final int MAX_POINT_DEF_VALUE = 60 * 60; //1시간
     public static final int START_ANGLE_DEF_VALUE = 0;
 
+    private static final String STATE_PARENT = "parent";
+    private static final String STATE_ANGLE = "angle";
+    private static final int END_WHEEL_DEFAULT_VALUE = 360;
+    
+    private boolean isRunning = false;
+    private baseTimerEndedListener baseTimerEndedListener;
     private OnCircleSeekBarChangeListener mOnCircleSeekBarChangeListener; // SeekBar 클릭 리스너 정의
 
     /**
@@ -117,38 +106,37 @@ public class CircleTimer extends View {
     /**
      * The pointer's position expressed as angle (in rad).
      */
-    private float mAngle;
+    private float angle;
     private Paint textPaint;
     private String text;
-    private int max = 60*60;
+    private int maximumTime = 60 * 60;
     private Timer timer;
-    int CurrentValue=0;
-    int TimerValue=0;
+    private int currentTime = 0;
+    private int timerTime = 0;
 
     private Typeface typeface; //폰트
 
     private Paint mArcColor;
-    private int wheel_color, unactive_wheel_color, pointer_color, pointer_halo_color, text_color;
-    private int init_position = -1;
-    private boolean block_end = false;
+    private int wheelColor, unActiveWheelColor, pointerColor, pointerHaloColor, textColor;
+    private int initPosition = -1;
+    private boolean blockEnd = false;
 
 
     private float lastX;
 
-    private int last_radians = 0;
-    private boolean block_start = false;
-    private boolean reset=true;
-    private int arc_finish_radians = 360; //360도까지 돌아간다.
-    private int start_arc = 0;
-
-    private float[] pointerPosition;
+    private int lastRadians = 0;
+    private boolean blockStart = false;
+    private boolean reset = true;
+    private int arcFinishRadians = 360; //360도까지 돌아갈 수 있다.
+    private int startArc = 0;
+    
     private RectF mColorCenterHaloRectangle = new RectF();
-    private int end_wheel;
+    private int endWheel;
 
-    private boolean show_text = true;
-    private boolean CounterClockwise=true;//시계방향으로
-    private boolean show_OutLine=true;
-    private boolean clickable=true;
+    private boolean showText = true;
+    private boolean counterClockwise = true;//시계방향으로
+    private boolean showOutLine = true;
+    private boolean clickable = true;
 
     private Rect bounds = new Rect();
 
@@ -167,39 +155,36 @@ public class CircleTimer extends View {
         init(attrs, defStyle);
     }
 
-    public void Start()
-    {
+    public void start() {
         isRunning = true;
-        if(reset) {
-            TimerValue = CurrentValue;
-            reset=false;
+        if (reset) {
+            timerTime = currentTime;
+            reset = false;
         }
         timer = new Timer();
-        timer.schedule(new SecondTimer(CurrentValue),0, 1000);
+        timer.schedule(new SecondTimer(currentTime), 0, 1000);
 
     }
 
-    public void Reset(){
+    public void reset() {
         isRunning = false;
 
-        reset=true;
-        CurrentValue= TimerValue;
-        setValue(CurrentValue);
-        setTextFromAngle(CurrentValue);
+        reset = true;
+        currentTime = timerTime;
+        setValue(currentTime);
+        setTextFromAngle(currentTime);
         timer.cancel();
         timer.purge();
-        timer=null;
+        timer = null;
     }
-    public void Stop(){
 
-        isRunning=false;
+    public void stop() {
+
+        isRunning = false;
         timer.cancel();
         timer.purge();
-        timer=null;
+        timer = null;
     }
-
-
-
 
 
     private void init(AttributeSet attrs, int defStyle) {
@@ -210,43 +195,33 @@ public class CircleTimer extends View {
         initAttributes(a);
 
         a.recycle();
-        // mAngle = (float) (-Math.PI / 2);
 
         mColorWheelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mColorWheelPaint.setColor(unactive_wheel_color);
+        mColorWheelPaint.setColor(unActiveWheelColor);
         mColorWheelPaint.setStyle(Style.STROKE);
 
 
         Paint mColorCenterHalo = new Paint(Paint.ANTI_ALIAS_FLAG);
         mColorCenterHalo.setColor(Color.CYAN);
         mColorCenterHalo.setAlpha(0xCC);
-        // mColorCenterHalo.setStyle(Paint.Style.STROKE);
-        // mColorCenterHalo.setStrokeWidth(mColorCenterHaloRectangle.width() /
-        // 2);
 
         mPointerHaloPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPointerHaloPaint.setColor(pointer_halo_color);
+        mPointerHaloPaint.setColor(pointerHaloColor);
         mPointerHaloPaint.setStrokeWidth(mPointerRadius + 10);
-        // mPointerHaloPaint.setAlpha(150);
-
-//        typeface = ResourcesCompat.getFont(getContext(),R.font.circleTimer_font);
+        
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.LINEAR_TEXT_FLAG);
-        textPaint.setColor(text_color);
-//        textPaint.setTypeface(typeface);
+        textPaint.setColor(textColor);
         textPaint.setStyle(Style.FILL_AND_STROKE);
         textPaint.setTextAlign(Align.LEFT);
-        // canvas.drawPaint(textPaint);
-
-
 
 
         mPointerColor = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPointerColor.setStrokeWidth(mPointerRadius);
 
-        mPointerColor.setColor(pointer_color);
+        mPointerColor.setColor(pointerColor);
 
         mArcColor = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mArcColor.setColor(wheel_color);
+        mArcColor.setColor(wheelColor);
         mArcColor.setStyle(Style.STROKE);
 
 
@@ -254,44 +229,41 @@ public class CircleTimer extends View {
         mCircleTextColor.setColor(Color.WHITE);
         mCircleTextColor.setStyle(Style.FILL);
 
-        arc_finish_radians = (int) calculateAngleFromText(init_position) - 90;
+        arcFinishRadians = (int) calculateAngleFromText(initPosition) - 90;
 
-        if (arc_finish_radians > end_wheel)
-            arc_finish_radians = end_wheel;
-        mAngle = calculateAngleFromRadians(arc_finish_radians > end_wheel ? end_wheel
-                : arc_finish_radians);
-        setTextFromAngle(init_position);
+        if (arcFinishRadians > endWheel)
+            arcFinishRadians = endWheel;
+        angle = calculateAngleFromRadians(Math.min(arcFinishRadians, endWheel));
+        setTextFromAngle(initPosition);
 
         invalidate();
     }
 
-    public void setTextFont(Typeface textFont)
-    {
+    public void setTextFont(Typeface textFont) {
         typeface = textFont;
         textPaint.setTypeface(typeface);
     }
 
-    public Typeface getTextFont()
-    {
+    public Typeface getTextFont() {
         return typeface;
     }
+
     private void setTextFromAngle(int angleValue) { //화면 중앙의 Text 값을 표시하는 곳
 
-        CurrentValue=angleValue;
-        int temp=angleValue/60;
-        String minute=temp>=10?String.valueOf(temp):"0"+temp;
+        currentTime = angleValue;
+        int temp = angleValue / 60;
+        String minute = temp >= 10 ? String.valueOf(temp) : "0" + temp;
 
-        temp=angleValue%(60);
-        String second=temp>=10?String.valueOf(temp):"0"+temp;
-        this.text = minute+":"+second;
+        temp = angleValue % (60);
+        String second = temp >= 10 ? String.valueOf(temp) : "0" + temp;
+        this.text = minute + ":" + second;
     }
 
     private void initAttributes(TypedArray a) {
-//        mColorWheelStrokeWidth = a.getInteger(
-//                R.styleable.CustomCircleSeekBar_wheel_size, COLOR_WHEEL_STROKE_WIDTH_DEF_VALUE);
+
         mPointerRadius = a.getDimension(
                 R.styleable.CircleTimer_pointer_size, POINTER_RADIUS_DEF_VALUE);
-        max = a.getInteger(R.styleable.CircleTimer_max, MAX_POINT_DEF_VALUE);
+        maximumTime = a.getInteger(R.styleable.CircleTimer_timerMaxValue, MAX_POINT_DEF_VALUE);
 
         String wheel_color_attr = a
                 .getString(R.styleable.CircleTimer_wheel_active_color);
@@ -304,79 +276,73 @@ public class CircleTimer extends View {
 
         String text_color_attr = a.getString(R.styleable.CircleTimer_text_color);
 
-//        text_size = a.getDimensionPixelSize(R.styleable.CustomCircleSeekBar_text_size, TEXT_SIZE_DEFAULT_VALUE);
+        initPosition = a.getInteger(R.styleable.CircleTimer_init_position, 0);
 
-        init_position = a.getInteger(R.styleable.CircleTimer_init_position, 0);
+        startArc = a.getInteger(R.styleable.CircleTimer_start_angle, START_ANGLE_DEF_VALUE);
+        endWheel = a.getInteger(R.styleable.CircleTimer_end_angle, END_WHEEL_DEFAULT_VALUE);
 
-        start_arc = a.getInteger(R.styleable.CircleTimer_start_angle, START_ANGLE_DEF_VALUE);
-        end_wheel = a.getInteger(R.styleable.CircleTimer_end_angle, END_WHEEL_DEFAULT_VALUE);
+        showText = a.getBoolean(R.styleable.CircleTimer_show_text, true);
+        clickable = a.getBoolean(R.styleable.CircleTimer_isClick, true);
+        counterClockwise = a.getBoolean(R.styleable.CircleTimer_counterClockWise, true);
+        showOutLine = a.getBoolean(R.styleable.CircleTimer_isOutline, true);
+        lastRadians = endWheel;
 
-        show_text = a.getBoolean(R.styleable.CircleTimer_show_text, true);
-        clickable = a.getBoolean(R.styleable.CircleTimer_IsClick,true);
-        CounterClockwise=a.getBoolean(R.styleable.CircleTimer_counterClockWise,true);
-        show_OutLine=a.getBoolean(R.styleable.CircleTimer_IsOutline,true);
-        last_radians = end_wheel;
-//
-//        if (init_position < start_arc)
-//            init_position = calculateTextFromStartAngle(start_arc);
-
-        if(init_position>max)
-        {
-            init_position=max;
+        if (initPosition > maximumTime) {
+            initPosition = maximumTime;
         }
         if (wheel_color_attr != null) { //하이라이트 원 색
             try {
-                wheel_color = Color.parseColor(wheel_color_attr);
+                wheelColor = Color.parseColor(wheel_color_attr);
             } catch (IllegalArgumentException e) {
-                wheel_color = Color.parseColor("#ff6c87");
+                wheelColor = Color.parseColor("#ff6c87");
             }
 
         } else {
-            wheel_color = Color.parseColor("#ff6c87");
+            wheelColor = Color.parseColor("#ff6c87");
         }
         if (wheel_unactive_color_attr != null) {
             try {
-                unactive_wheel_color = Color
+                unActiveWheelColor = Color
                         .parseColor(wheel_unactive_color_attr);
             } catch (IllegalArgumentException e) {
-                unactive_wheel_color = Color.WHITE;
+                unActiveWheelColor = Color.WHITE;
             }
 
         } else {
-            unactive_wheel_color = Color.WHITE;
+            unActiveWheelColor = Color.WHITE;
         }
 
         if (pointer_color_attr != null) {
             try {
-                pointer_color = Color.parseColor(pointer_color_attr);
+                pointerColor = Color.parseColor(pointer_color_attr);
             } catch (IllegalArgumentException e) {
-                pointer_color = Color.WHITE;
+                pointerColor = Color.WHITE;
             }
 
         } else {
-            pointer_color = Color.WHITE;
+            pointerColor = Color.WHITE;
         }
 
         if (pointer_halo_color_attr != null) {
             try {
-                pointer_halo_color = Color.parseColor(pointer_halo_color_attr);
+                pointerHaloColor = Color.parseColor(pointer_halo_color_attr);
 
             } catch (IllegalArgumentException e) {
-                wheel_color = Color.parseColor("#ff6c87");
+                wheelColor = Color.parseColor("#ff6c87");
             }
 
         } else {
-            wheel_color = Color.parseColor("#ff6c87");
+            wheelColor = Color.parseColor("#ff6c87");
         }
 
         if (text_color_attr != null) {
             try {
-                text_color = Color.parseColor(text_color_attr);
+                textColor = Color.parseColor(text_color_attr);
             } catch (IllegalArgumentException e) {
-                text_color = Color.BLACK;
+                textColor = Color.BLACK;
             }
         } else {
-            text_color = Color.BLACK;
+            textColor = Color.BLACK;
         }
 
     }  // 초기 Timer 설정
@@ -389,14 +355,14 @@ public class CircleTimer extends View {
 
 
         canvas.save();
-        canvas.translate(mTranslationOffset,mTranslationOffset);
-        if(show_OutLine) {
+        canvas.translate(mTranslationOffset, mTranslationOffset);
+        if (showOutLine) {
             // 외곽 그리기 시작
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             RectF rectF = new RectF();
 
-            rectF.set(mColorWheelRectangle.right + mColorWheelStrokeWidth - 20, 3, mColorWheelRectangle.right + mColorWheelStrokeWidth , -3);
+            rectF.set(mColorWheelRectangle.right + mColorWheelStrokeWidth - 20, 3, mColorWheelRectangle.right + mColorWheelStrokeWidth, -3);
             Paint paint = new Paint();
             paint.setAntiAlias(true);
             paint.setColor(Color.BLACK);
@@ -404,12 +370,12 @@ public class CircleTimer extends View {
             canvas.drawRoundRect(rectF, 5, 5, paint);  //rx와 ry는 둥근 사각형의 모서리 정도
             for (int i = 5; i < 360; i += 5) {
                 if (i % 6 == 0) {
-                    rectF.bottom =-3;
-                    rectF.top =3;
-                    rectF.right = mColorWheelRectangle.right + mColorWheelStrokeWidth ;
+                    rectF.bottom = -3;
+                    rectF.top = 3;
+                    rectF.right = mColorWheelRectangle.right + mColorWheelStrokeWidth;
                 } else {
                     rectF.right = mColorWheelRectangle.right + mColorWheelStrokeWidth;
-                    rectF.top=1;
+                    rectF.top = 1;
                     rectF.bottom = -1;
                 }
                 canvas.rotate(5, mColorWheelRectangle.centerX(), mColorWheelRectangle.centerY());
@@ -424,32 +390,18 @@ public class CircleTimer extends View {
         canvas.translate(mTranslationOffset, mTranslationOffset);
 
         // Timer Base Line Circle .. 뒷배경 원
-        canvas.drawArc(mColorWheelRectangle, start_arc + 270, end_wheel //270을 해야 정확한 지점에 그려짐
-                - (start_arc), false, mColorWheelPaint);
+        canvas.drawArc(mColorWheelRectangle, startArc + 270, endWheel //270을 해야 정확한 지점에 그려짐
+                - (startArc), false, mColorWheelPaint);
 
         // Text 값과 동일한 원
-        int temp=CounterClockwise?1:-1;
-        canvas.drawArc(mColorWheelRectangle, start_arc + 270,
-                temp*((arc_finish_radians) > (end_wheel) ? end_wheel - (start_arc) : arc_finish_radians - start_arc), false, mArcColor);
-        {
-            // Draw the pointer's "halo"
-//        canvas.drawCircle(pointerPosition[0], pointerPosition[1],
-//                mPointerRadius, mPointerHaloPaint);
-
-            // Draw the pointer (the currently selected color) slightly smaller on
-            // top.
-
-            // Seekbar의 Thumb을 그리는 작업
-
-//        canvas.drawCircle(pointerPosition[0], pointerPosition[1],
-//                (float) (mPointerRadius / 1.2), mPointerColor);
-        }
+        int temp = counterClockwise ? 1 : -1;
+        canvas.drawArc(mColorWheelRectangle, startArc + 270,
+                temp * ((arcFinishRadians) > (endWheel) ? endWheel - (startArc) : arcFinishRadians - startArc), false, mArcColor);
+  
 
         textPaint.getTextBounds(text, 0, text.length(), bounds);
-        // canvas.drawCircle(mColorWheelRectangle.centerX(),
-        // mColorWheelRectangle.centerY(), (bounds.width() / 2) + 5,
-        // mCircleTextColor);
-        if (show_text)
+   
+        if (showText)
             canvas.drawText(
                     text,
                     (mColorWheelRectangle.centerX())
@@ -457,9 +409,7 @@ public class CircleTimer extends View {
                     mColorWheelRectangle.centerY() + bounds.height() / 2,
                     textPaint);
 
-        // last_radians = calculateRadiansFromAngle(mAngle);
-
-    } //화면을 그리는 곳
+    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -476,20 +426,19 @@ public class CircleTimer extends View {
         mTranslationOffset = height * 0.5f; // 캔버스 중심으로
 
         //확인을 위해
-        mColorWheelStrokeWidth=(int)(mTranslationOffset/3);
+        mColorWheelStrokeWidth = (int) (mTranslationOffset / 3);
 
 
         //레이아웃 크기별 화면면
         ////////////////////////////////////////////////////////////
         mColorWheelPaint.setStrokeWidth(mColorWheelStrokeWidth);
         mArcColor.setStrokeWidth(mColorWheelStrokeWidth);
-        textPaint.setTextSize(mTranslationOffset/4);
+        textPaint.setTextSize(mTranslationOffset / 4);
 
 
         ////////////////////////////////////////////////////////////
 
-        mColorWheelRadius = mTranslationOffset -mColorWheelStrokeWidth-10; // highlight color circle에 비례해서 canvas 크기를 설정
-
+        mColorWheelRadius = mTranslationOffset - mColorWheelStrokeWidth - 10; // highlight color circle에 비례해서 canvas 크기를 설정
 
 
         //원을 실질적으로 그리는 사각형의 크기
@@ -501,31 +450,29 @@ public class CircleTimer extends View {
                 -mColorWheelRadius / 2, mColorWheelRadius / 2,
                 mColorWheelRadius / 2);
 
-        updatePointerPosition();
-
     } // 해당 뷰의 크기에 맞게 Canvas 크기를 재정의 하는 곳
 
     private int calculateValueFromAngle(float angle) { //앵글에 해당하는 값을 반환
 
-        float m = angle - start_arc-1;
+        float m = angle - startArc - 1;
 
 
-        float f = (end_wheel - start_arc) / m;
+        float f = (endWheel - startArc) / m;
 
-        return (int) (max / f);
+        return (int) (maximumTime / f);
     }
 
     private int calculateTextFromStartAngle(float angle) {
-        float f = (end_wheel - start_arc) / angle;
+        float f = (endWheel - startArc) / angle;
 
-        return (int) (max / f);
+        return (int) (maximumTime / f);
     }
 
     private double calculateAngleFromText(int position) {
-        if (position == 0 || position >= max)
+        if (position == 0 || position >= maximumTime)
             return (float) 90;
 
-        double f = (double) max / (double) position;
+        double f = (double) maximumTime / (double) position;
 
         double f_r = 360 / f;
 
@@ -542,8 +489,8 @@ public class CircleTimer extends View {
             radians += 360;
 
 
-        if(!CounterClockwise)
-            return 360-radians;
+        if (!counterClockwise)
+            return 360 - radians;
         else
             return radians;
 
@@ -559,49 +506,40 @@ public class CircleTimer extends View {
      * @return the value between 0 and max
      */
     public int getValue() {
-        return CurrentValue;
+        return currentTime;
     }
 
-    public void setMax(int max) {
-        this.max = max;
-        setTextFromAngle(calculateValueFromAngle(arc_finish_radians));
-        updatePointerPosition();
+    public void setMaximumTime(int maximumTime) {
+        this.maximumTime = maximumTime;
+        setTextFromAngle(calculateValueFromAngle(arcFinishRadians));
         invalidate();
     }
 
 
-
-
     public void setValue(float newValue) {  // value 값으로 Timer 셋팅
         if (newValue == 0) {
-            arc_finish_radians = start_arc; //0
-        } else if (newValue == this.max) {
-            arc_finish_radians = end_wheel; //360
+            arcFinishRadians = startArc; //0
+        } else if (newValue == this.maximumTime) {
+            arcFinishRadians = endWheel; //360
         } else {
-            float newAngle = (float) (360.0 * (newValue / max));
-            arc_finish_radians = (int) calculateAngleFromRadians(calculateRadiansFromAngle(newAngle)) + 1;
+            float newAngle = (float) (360.0 * (newValue / maximumTime));
+            arcFinishRadians = (int) calculateAngleFromRadians(calculateRadiansFromAngle(newAngle)) + 1;
         }
 
 
-        mAngle = calculateAngleFromRadians(arc_finish_radians);
-        setTextFromAngle((int)newValue);
-        updatePointerPosition();
+        angle = calculateAngleFromRadians(arcFinishRadians);
+        setTextFromAngle((int) newValue);
 
         //화면 다시 갱신
         invalidate();
     }
 
 
-
-    private void updatePointerPosition() {
-        pointerPosition = calculatePointerPosition(mAngle);
-    }
-
     @Override
-    public boolean onTouchEvent(MotionEvent event){
+    public boolean onTouchEvent(MotionEvent event) {
         // Convert coordinates to our internal coordinate system
 
-        if(!show_text||!clickable||isRunning) return false;
+        if (!showText || !clickable || isRunning) return false;
 
         float x = event.getX() - mTranslationOffset;
         float y = event.getY() - mTranslationOffset;
@@ -609,24 +547,23 @@ public class CircleTimer extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
 
-                if(mColorWheelRectangle.contains(x,y)) {
+                if (mColorWheelRectangle.contains(x, y)) {
                     // Check whether the user pressed on (or near) the pointer
-                    mAngle = (float) Math.atan2(y, x); // 두 지점의 각도를 반환한다.
+                    angle = (float) Math.atan2(y, x); // 두 지점의 각도를 반환한다.
 
-                    block_end = false;
-                    block_start = false;
+                    blockEnd = false;
+                    blockStart = false;
                     mUserIsMovingPointer = true;
 
-                    arc_finish_radians = calculateRadiansFromAngle(mAngle);
+                    arcFinishRadians = calculateRadiansFromAngle(angle);
 
-                    if (arc_finish_radians > end_wheel) {
-                        arc_finish_radians = end_wheel;
-                        block_end = true;
+                    if (arcFinishRadians > endWheel) {
+                        arcFinishRadians = endWheel;
+                        blockEnd = true;
                     }
 
-                    if (!block_end) {
-                        setTextFromAngle(calculateValueFromAngle(arc_finish_radians));
-                        updatePointerPosition();
+                    if (!blockEnd) {
+                        setTextFromAngle(calculateValueFromAngle(arcFinishRadians));
                         invalidate();
                     }
                     if (mOnCircleSeekBarChangeListener != null) {
@@ -636,53 +573,50 @@ public class CircleTimer extends View {
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (mUserIsMovingPointer) {
-                    mAngle = (float) Math.atan2(y, x);
+                    angle = (float) Math.atan2(y, x);
 
-                    int radians = calculateRadiansFromAngle(mAngle);
+                    int radians = calculateRadiansFromAngle(angle);
 
-                    if (last_radians > radians && radians < (360 / 6) && x > lastX
-                            && last_radians > (360 / 6)) {
+                    if (lastRadians > radians && radians < (360 / 6) && x > lastX
+                            && lastRadians > (360 / 6)) {
 
-                        if (!block_end && !block_start)
-                            block_end = true;
+                        if (!blockEnd && !blockStart)
+                            blockEnd = true;
                         // if (block_start)
                         // block_start = false;
-                    } else if (last_radians >= start_arc
-                            && last_radians <= (360 / 4) && radians <= (360 - 1)
+                    } else if (lastRadians >= startArc
+                            && lastRadians <= (360 / 4) && radians <= (360 - 1)
                             && radians >= ((360 / 4) * 3) && x < lastX) {
-                        if (!block_start && !block_end)
-                            block_start = true;
+                        if (!blockStart && !blockEnd)
+                            blockStart = true;
                         // if (block_end)
                         // block_end = false;
 
-                    } else if (radians >= end_wheel && !block_start
-                            && last_radians < radians) {
-                        block_end = true;
-                    } else if (radians < end_wheel && block_end
-                            && last_radians > end_wheel) {
-                        block_end = false;
-                    } else if (radians < start_arc && last_radians > radians
-                            && !block_end) {
-                        block_start = true;
-                    } else if (block_start && last_radians < radians
-                            && radians > start_arc && radians < end_wheel) {
-                        block_start = false;
+                    } else if (radians >= endWheel && !blockStart
+                            && lastRadians < radians) {
+                        blockEnd = true;
+                    } else if (radians < endWheel && blockEnd
+                            && lastRadians > endWheel) {
+                        blockEnd = false;
+                    } else if (radians < startArc && lastRadians > radians
+                            && !blockEnd) {
+                        blockStart = true;
+                    } else if (blockStart && lastRadians < radians
+                            && radians > startArc && radians < endWheel) {
+                        blockStart = false;
                     }
 
-                    if (block_end) {
-                        arc_finish_radians = end_wheel - 1;
-                        setTextFromAngle(max);
-                        mAngle = calculateAngleFromRadians(arc_finish_radians);
-                        updatePointerPosition();
-                    } else if (block_start) {
-                        arc_finish_radians = start_arc;
-                        mAngle = calculateAngleFromRadians(arc_finish_radians);
+                    if (blockEnd) {
+                        arcFinishRadians = endWheel - 1;
+                        setTextFromAngle(maximumTime);
+                        angle = calculateAngleFromRadians(arcFinishRadians);
+                    } else if (blockStart) {
+                        arcFinishRadians = startArc;
+                        angle = calculateAngleFromRadians(arcFinishRadians);
                         setTextFromAngle(0);
-                        updatePointerPosition();
                     } else {
-                        arc_finish_radians = calculateRadiansFromAngle(mAngle);
-                        setTextFromAngle(calculateValueFromAngle(arc_finish_radians));
-                        updatePointerPosition();
+                        arcFinishRadians = calculateRadiansFromAngle(angle);
+                        setTextFromAngle(calculateValueFromAngle(arcFinishRadians));
                     }
                     invalidate();
 
@@ -691,7 +625,7 @@ public class CircleTimer extends View {
                         mOnCircleSeekBarChangeListener.onProgressChanged(this,
                                 Integer.parseInt(text), true);
 
-                    last_radians = radians;
+                    lastRadians = radians;
 
                 }
                 break;
@@ -711,30 +645,13 @@ public class CircleTimer extends View {
         return true;
     }
 
-    /**
-     * Calculate the pointer's coordinates on the color wheel using the supplied
-     * angle.
-     *
-     * @param angle The position of the pointer expressed as angle (in rad).
-     * @return The coordinates of the pointer's center in our internal
-     * coordinate system.
-     */
-    private float[] calculatePointerPosition(float angle) {
-        // if (calculateRadiansFromAngle(angle) > end_wheel)
-        // angle = calculateAngleFromRadians(end_wheel);
-        float x = (float) (mColorWheelRadius * Math.cos(angle));
-        float y = (float) (mColorWheelRadius * Math.sin(angle));
-
-        return new float[]{x, y};
-    }
-
     @Override
     protected Parcelable onSaveInstanceState() {
         Parcelable superState = super.onSaveInstanceState();
 
         Bundle state = new Bundle();
         state.putParcelable(STATE_PARENT, superState);
-        state.putFloat(STATE_ANGLE, mAngle);
+        state.putFloat(STATE_ANGLE, angle);
 
         return state;
     }
@@ -746,31 +663,28 @@ public class CircleTimer extends View {
         Parcelable superState = savedState.getParcelable(STATE_PARENT);
         super.onRestoreInstanceState(superState);
 
-        mAngle = savedState.getFloat(STATE_ANGLE);
-        arc_finish_radians = calculateRadiansFromAngle(mAngle);
-        setTextFromAngle(calculateValueFromAngle(arc_finish_radians));
-        updatePointerPosition();
+        angle = savedState.getFloat(STATE_ANGLE);
+        arcFinishRadians = calculateRadiansFromAngle(angle);
+        setTextFromAngle(calculateValueFromAngle(arcFinishRadians));
     }
 
 
-
     public void setInitPosition(int newValue) {  // value 값으로 Timer 셋팅
-        if(timer!=null)
-            Reset();
+        if (timer != null)
+            reset();
         if (newValue == 0) {
-            arc_finish_radians = start_arc; //0
-        } else if (newValue == this.max) {
-            arc_finish_radians = end_wheel; //360
+            arcFinishRadians = startArc; //0
+        } else if (newValue == this.maximumTime) {
+            arcFinishRadians = endWheel; //360
         } else {
-            float newAngle = (float) (360.0 * ((float)newValue / max));
-            arc_finish_radians = (int) calculateAngleFromRadians(calculateRadiansFromAngle(newAngle)) + 1;
+            float newAngle = (float) (360.0 * ((float) newValue / maximumTime));
+            arcFinishRadians = (int) calculateAngleFromRadians(calculateRadiansFromAngle(newAngle)) + 1;
         }
 
 
-        TimerValue=newValue;
-        mAngle = calculateAngleFromRadians(arc_finish_radians);
+        timerTime = newValue;
+        angle = calculateAngleFromRadians(arcFinishRadians);
         setTextFromAngle(newValue);
-        updatePointerPosition();
 
         //화면 다시 갱신
         invalidate();
@@ -781,7 +695,7 @@ public class CircleTimer extends View {
     }
 
     public int getMaxValue() {
-        return max;
+        return maximumTime;
     } //현재 Timer의 최대값을 반환하는 함수 return max
 
     public interface OnCircleSeekBarChangeListener {
@@ -798,23 +712,24 @@ public class CircleTimer extends View {
 
         int value;
 
-        public SecondTimer(){
-            this.value=0;
+        public SecondTimer() {
+            this.value = 0;
         }
-        public SecondTimer(int value)
-        {
-            this.value=value;
+
+        public SecondTimer(int value) {
+            this.value = value;
         }
+
         @Override
         public void run() {
-            if(value>0) {
+            if (value > 0) {
 
-                value-=1;
+                value -= 1;
                 setValue(value);
                 setTextFromAngle(value);
 
-            }else {
-                if(baseTimerEndedListener != null)baseTimerEndedListener.OnEnded();
+            } else {
+                if (baseTimerEndedListener != null) baseTimerEndedListener.OnEnded();
                 this.cancel();
             }
         }
@@ -824,11 +739,9 @@ public class CircleTimer extends View {
         public void OnEnded();
     }
 
-    public void setBaseTimerEndedListener(baseTimerEndedListener listener)
-    {
+    public void setBaseTimerEndedListener(baseTimerEndedListener listener) {
         this.baseTimerEndedListener = listener;
     }
-
 
 
 }
