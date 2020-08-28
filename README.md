@@ -20,7 +20,7 @@ allprojects {
 In your build.gradle :
 ```gradle
 dependencies {
-    implementation 'com.github.jaeryo2357.CircleTimer-Android:circletimer:1.0.1'
+    implementation 'com.github.jaeryo2357.CircleTimer-Android:circletimer:1.0.2'
 }
 ```
 
@@ -61,4 +61,15 @@ dependencies {
      // Stop and Reset() have to call after Start()
      timer.Stop()
      timer.Reset()
+```
+
+### End Timer Linstener
+
+```java
+     rectTimer.setBaseTimerEndedListener(new RectTimer.baseTimerEndedListener() { //timer 종료
+            @Override
+            public void OnEnded() {
+
+            }
+        });
 ```
