@@ -38,7 +38,7 @@ dependencies {
      <com.mut_jaeryo.circletimer.CircleTimer
         android:layout_width="wrap_content"
         android:layout_height="200dp"
-        app:IsOutline="true"
+        app:isOutline="true"
 	app:show_text="true"
         app:init_position="3124"
         app:layout_constraintEnd_toEndOf="parent"
@@ -57,10 +57,10 @@ dependencies {
 ### Start Timer
 
 ```java
-     timer.Start()
+     timer.start()
      // Stop and Reset() have to call after Start()
-     timer.Stop()
-     timer.Reset()
+     timer.stop()
+     timer.reset()
 ```
 
 ### End Timer Linstener
