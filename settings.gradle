@@ -1,2 +1,2 @@
-include ':app', ':circletimer'
+include ':app', ':libaray'
 rootProject.name='circleTimer_Library'
