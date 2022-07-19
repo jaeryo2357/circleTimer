@@ -755,6 +755,4 @@ public class CircleTimer extends View {
     public void setBaseTimerEndedListener(baseTimerEndedListener listener) {
         this.baseTimerEndedListener = listener;
     }
-
-
 }
