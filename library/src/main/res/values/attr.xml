@@ -13,7 +13,6 @@
         <attr name="text_size" format="dimension"/>
         <attr name="init_position" format="integer"/>
         <attr name="wheel_active_color" format="string"/>
-        <attr name="wheel_unactive_color" format="string"/>
         <attr name="pointer_color" format="string"/>
         <attr name="pointer_halo_color" format="string"/>
         <attr name="text_color" format="string"/>
