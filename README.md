@@ -20,7 +20,7 @@ allprojects {
 In your build.gradle :
 ```gradle
 dependencies {
-    implementation 'com.github.jaeryo2357:circleTimer:1.1.3'
+    implementation 'com.github.jaeryo2357:circleTimer:1.1.4'
 }
 ```
 
@@ -39,7 +39,7 @@ dependencies {
         android:layout_width="wrap_content"
         android:layout_height="200dp"
         app:isOutline="true"
-	app:show_text="true"
+	    app:show_text="true"
         app:init_position="3124"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
