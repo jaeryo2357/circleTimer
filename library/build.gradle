@@ -3,16 +3,20 @@ apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion 33
-    buildToolsVersion "33.0.0"
 
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 33
         versionCode 1
-        versionName "1.1.5"
+        versionName "1.1.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     buildTypes {
@@ -28,23 +32,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            // Creates a Maven publication called "release".
-            release(MavenPublication) {
-                // Applies the component for the release build variant.
-                from components.release
-
-                // You can then customize attributes of the publication as shown below.
-                groupId = 'com.github.jaeryo2357'
-                artifactId = 'final'
-                version = '1.1.5'
-            }
-        }
-    }
 }
 
 repositories {
