@@ -41,6 +41,10 @@ dependencies {
         app:isOutline="true"
 	    app:show_text="true"
         app:init_position="3124"
+        app:outline_color="#ff0000"
+        app:text_color="#ff0000"
+        app:wheel_active_color="#ff0000"
+        app:wheel_background_color="#0000ff"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -51,7 +55,7 @@ dependencies {
 ```java
 	timer = findViewById(R.id.main_timer);
 	timer.setMaximumTime(3600)  // 60 minute
-        timer.setInitPosition(2000); //default max 3600
+     timer.setInitPosition(2000); //default max 3600
 ```
 
 ### Start Timer

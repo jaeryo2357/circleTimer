@@ -45,7 +45,7 @@ public class CircleTimer extends View {
     /**
      * {@code Paint} instance used to draw the pointer's "halo".
      */
-    private Paint haloPaint;
+    private Paint outLinePaint;
 
     /**
      * {@code Paint} instance used to draw the pointer (the selected color).
@@ -116,7 +116,7 @@ public class CircleTimer extends View {
 
     private Typeface typeface; //폰트
 
-    private int wheelColor, pointerColor, pointerHaloColor, textColor;
+    private int wheelBackgroundColor, wheelActiveColor, outLineColor, textColor;
     private int initPosition = -1;
     private boolean blockEnd = false;
 
@@ -136,7 +136,7 @@ public class CircleTimer extends View {
     private boolean clickable = true;
 
     private Rect textBounds = new Rect();
-    private RectF ContentBounds = new RectF();
+    private RectF contentBounds = new RectF();
 
     public CircleTimer(Context context) {
         super(context);
@@ -198,12 +198,12 @@ public class CircleTimer extends View {
         a.recycle();
 
         wheelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        wheelPaint.setColor(wheelColor);
+        wheelPaint.setColor(wheelBackgroundColor);
         wheelPaint.setStyle(Style.STROKE);
 
-        haloPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        haloPaint.setColor(pointerHaloColor);
-        haloPaint.setStrokeWidth(mPointerRadius + 10);
+        outLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        outLinePaint.setColor(outLineColor);
+        outLinePaint.setStrokeWidth(mPointerRadius + 10);
 
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.LINEAR_TEXT_FLAG);
         textPaint.setColor(textColor);
@@ -212,8 +212,8 @@ public class CircleTimer extends View {
 
 
         highlightWheelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        highlightWheelPaint.setStrokeWidth(mPointerRadius);
-        highlightWheelPaint.setColor(pointerColor);
+        highlightWheelPaint.setStyle(Style.STROKE);
+        highlightWheelPaint.setColor(wheelActiveColor);
 
         arcFinishRadians = (int) calculateAngleFromText(initPosition) - 90;
 
@@ -252,12 +252,12 @@ public class CircleTimer extends View {
                 R.styleable.CircleTimer_pointer_size, POINTER_RADIUS_DEF_VALUE);
         maximumTime = a.getInteger(R.styleable.CircleTimer_timerMaxValue, MAX_POINT_DEF_VALUE);
 
-        String wheel_color_attr = a
+        String wheelBackgroundColorAttr = a
+                .getString(R.styleable.CircleTimer_wheel_background_color);
+        String wheelActiveColorAttr = a
                 .getString(R.styleable.CircleTimer_wheel_active_color);
-        String pointer_color_attr = a
-                .getString(R.styleable.CircleTimer_pointer_color);
-        String pointer_halo_color_attr = a
-                .getString(R.styleable.CircleTimer_pointer_halo_color);
+        String outLineColorAttr = a
+                .getString(R.styleable.CircleTimer_outline_color);
 
         String text_color_attr = a.getString(R.styleable.CircleTimer_text_color);
 
@@ -275,38 +275,50 @@ public class CircleTimer extends View {
         if (initPosition > maximumTime) {
             initPosition = maximumTime;
         }
-        if (wheel_color_attr != null) { // 기본 배경 Wheel 색상
+        if (wheelBackgroundColorAttr != null) { // 기본 배경 Wheel 색상
             try {
-                wheelColor = Color.parseColor(wheel_color_attr);
+                wheelBackgroundColor = Color.parseColor(wheelBackgroundColorAttr);
             } catch (IllegalArgumentException e) {
-                wheelColor = Color.parseColor("#ff6c87");
+                wheelBackgroundColor = Color.parseColor("#ff6c87");
             }
 
         } else {
-            wheelColor = Color.parseColor("#ff6c87");
+            wheelBackgroundColor = Color.parseColor("#ff6c87");
         }
 
-        if (pointer_color_attr != null) { // 포인트 컬러
+        if (wheelActiveColorAttr != null) { // 시간을 의미하는 Wheel 색상
             try {
-                pointerColor = Color.parseColor(pointer_color_attr);
+                wheelActiveColor = Color.parseColor(wheelActiveColorAttr);
             } catch (IllegalArgumentException e) {
-                pointerColor = Color.parseColor("#ff6c87");
+                wheelActiveColor = Color.parseColor("#ff6c87");
             }
 
         } else {
-            pointerColor = Color.parseColor("#ff6c87");
+            wheelActiveColor = Color.parseColor("#ff6c87");
         }
 
-        if (pointer_halo_color_attr != null) {
+        if (outLineColorAttr != null) {
             try {
-                pointerHaloColor = Color.parseColor(pointer_halo_color_attr);
+                outLineColor = Color.parseColor(outLineColorAttr);
 
             } catch (IllegalArgumentException e) {
-                pointerHaloColor = Color.parseColor("#ff6c87");
+                outLineColor = Color.parseColor("#ff6c87");
             }
 
         } else {
-            pointerHaloColor = Color.parseColor("#ff6c87");
+            outLineColor = Color.parseColor("#ff6c87");
+        }
+
+        if (outLineColorAttr != null) {
+            try {
+                outLineColor = Color.parseColor(outLineColorAttr);
+
+            } catch (IllegalArgumentException e) {
+                outLineColor = Color.parseColor("#ff6c87");
+            }
+
+        } else {
+            outLineColor = Color.parseColor("#ff6c87");
         }
 
         if (text_color_attr != null) {
@@ -327,29 +339,28 @@ public class CircleTimer extends View {
         // Instead of translating
         // them we let Canvas do the work for us.
 
-
         canvas.save();
         canvas.translate(mTranslationOffset, mTranslationOffset);
         if (showOutLine) {
             // 외곽 그리기 시작
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            ContentBounds.set(mColorWheelRectangle.right + mColorWheelStrokeWidth - 20, 3, mColorWheelRectangle.right + mColorWheelStrokeWidth, -3);
+            contentBounds.set(mColorWheelRectangle.right + mColorWheelStrokeWidth - 20, 3, mColorWheelRectangle.right + mColorWheelStrokeWidth, -3);
 
-            canvas.drawRoundRect(ContentBounds, 5, 5, haloPaint);  //rx와 ry는 둥근 사각형의 모서리 정도
+            canvas.drawRoundRect(contentBounds, 5, 5, outLinePaint);  //rx와 ry는 둥근 사각형의 모서리 정도
             for (int i = 5; i < 360; i += 5) {
                 if (i % 6 == 0) {
-                    ContentBounds.bottom = -3;
-                    ContentBounds.top = 3;
-                    ContentBounds.right = mColorWheelRectangle.right + mColorWheelStrokeWidth;
+                    contentBounds.bottom = -3;
+                    contentBounds.top = 3;
+                    contentBounds.right = mColorWheelRectangle.right + mColorWheelStrokeWidth;
                 } else {
-                    ContentBounds.right = mColorWheelRectangle.right + mColorWheelStrokeWidth;
-                    ContentBounds.top = 1;
-                    ContentBounds.bottom = -1;
+                    contentBounds.right = mColorWheelRectangle.right + mColorWheelStrokeWidth;
+                    contentBounds.top = 1;
+                    contentBounds.bottom = -1;
                 }
                 canvas.rotate(5, mColorWheelRectangle.centerX(), mColorWheelRectangle.centerY());
 
-                canvas.drawRoundRect(ContentBounds, 5, 5, haloPaint);
+                canvas.drawRoundRect(contentBounds, 5, 5, outLinePaint);
             }
             ////////////////////////////////////////////////////////////////////////////////////////////////////////
             //외곽 그리기 종료
