@@ -20,7 +20,7 @@ allprojects {
 In your build.gradle :
 ```gradle
 dependencies {
-    implementation 'com.github.jaeryo2357:circleTimer:1.1.4'
+    implementation 'com.github.jaeryo2357:circleTimer:1.1.7'
 }
 ```
 
@@ -39,7 +39,7 @@ dependencies {
         android:layout_width="wrap_content"
         android:layout_height="200dp"
         app:isOutline="true"
-	    app:show_text="true"
+	app:show_text="true"
         app:init_position="3124"
         app:outline_color="#ff0000"
         app:text_color="#ff0000"
@@ -50,6 +50,8 @@ dependencies {
         app:layout_constraintTop_toTopOf="parent">
     </com.mut_jaeryo.circletimer.CircleTimer>
 ```
+
+You can change the wheel color, text, and outline
 
 ### From the code
 ```java
